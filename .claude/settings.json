@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm --version)",
+      "Bash(npx skills@latest add mattpocock/skills)",
+      "Bash(git --version)",
+      "Bash(git config *)",
+      "PowerShell(winget --version)",
+      "PowerShell(winget list --id GitHub.cli -e 2>&1)",
+      "PowerShell(winget install --id GitHub.cli -e --accept-source-agreements --accept-package-agreements)",
+      "PowerShell(winget install --id GitHub.cli -e --source winget --accept-source-agreements --accept-package-agreements)"
+    ]
+  }
+}
