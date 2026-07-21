@@ -1,18 +1,29 @@
 # Shared skills library — not part of this app, kept local per project decision
 .agents/skills/
 
-# Secrets — never commit env vars (N8N_WEBHOOK_SECRET, NEXTAUTH_SECRET, Google OAuth creds, etc.)
-.env
-.env.local
-.env.*.local
+# Secrets — never commit env vars (N8N_PLL_WEBHOOK_SECRET, AUTH_SECRET, Google OAuth creds, etc.)
+# Broad on purpose: .env.production, .env.development, etc. (without ".local") are not
+# covered by a narrower "*.local" pattern and have leaked from other repos before.
+.env*
+!.env.example
 
-# Node / Next.js (repo has no app code yet, but avoid a second commit fixing this later)
+# Raw Google Cloud Console OAuth credential exports (client_secret_<id>.apps.googleusercontent.com.json)
+# — found one sitting in the repo root, uncovered by any existing pattern. Never commit this shape.
+client_secret_*.json
+
+# Node / Next.js
 node_modules/
 .next/
 out/
 .vercel/
 npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.tsbuildinfo
+next-env.d.ts
+/coverage
 
 # OS / editor
 .DS_Store
 Thumbs.db
+*.pem
