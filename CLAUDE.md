@@ -3,7 +3,7 @@
 ## Qué es esto
 App interna que corre manualmente workflows de n8n vía webhook, sin entrar a la UI de n8n.
 NO crea ni edita workflows de n8n — eso vive en el repo separado "n8n agent builder". Este repo solo llama webhooks, nunca toca el JSON de un workflow.
-v1: un solo workflow ("New P&L creation"), dos usuarios, ambiente sandbox.
+v1: un solo workflow ("New P&L creation"), dos usuarios, deploy en Vercel Production (`main`). Ver `docs/adr/0003-auth-y-config-shape.md`.
 
 ## Stack
 - Next.js + TypeScript, deploy en Vercel.
@@ -12,29 +12,28 @@ v1: un solo workflow ("New P&L creation"), dos usuarios, ambiente sandbox.
 - Historial de ejecuciones: NO se duplica en este repo. n8n ya lo guarda. Este panel solo corre workflows, no reporta.
 
 ## Ambientes
-Un solo repo. Sandbox y producción se manejan con env vars distintas por ambiente de Vercel (Preview = sandbox, Production = producción futura) — no repos ni deploys separados.
+Un solo repo. Sandbox y producción se manejan con env vars distintas por ambiente de Vercel — no repos ni deploys separados. v1 usa **Production (`main`) directamente**: el workflow de n8n no tiene sandbox del lado de los datos (siempre escribe sobre Sheets/Drive/Slack reales), así que la distinción Preview=sandbox no aísla nada todavía y se retoma cuando exista un segundo webhook real. Ver `docs/adr/0003-auth-y-config-shape.md`.
 
 Cada ambiente tiene su propia URL de webhook de n8n, su propio secret, y su propia whitelist de emails. Nunca reusar ni mezclar env vars entre ambientes.
 
-Variables esperadas por ambiente (nombres orientativos):
-- `N8N_WEBHOOK_URL`
-- `N8N_WEBHOOK_SECRET`
-- `ALLOWED_EMAILS` (lista separada por comas)
-- `NEXTAUTH_SECRET` / credenciales de Google OAuth
+Variables por ambiente:
+- `N8N_PLL_WEBHOOK_URL`
+- `N8N_PLL_WEBHOOK_SECRET`
+- `EQUALS11_ALLOWED_EMAILS` (lista separada por comas)
+- `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET` (Auth.js v5)
 
 ## Seguridad — no negociable
 
-**Pendiente crítico, fuera de este repo:** el webhook de n8n hoy NO tiene autenticación propia (sin secret, sin basic auth). El login de Google en esta app filtra quién ve el botón, pero si la URL del webhook se filtra (logs, Slack, historial de n8n), cualquiera puede correrlo sin pasar por el login. Esto se resuelve en n8n (nodo Webhook → validar header), no en este repo. No pasar de sandbox a producción sin esto resuelto.
+**Autenticación del webhook (resuelto):** el nodo Webhook de n8n valida un header `X-Webhook-Secret` (Header Auth). El login de Google filtra quién ve el botón; el secret del header impide que alguien corra el workflow con solo tener la URL. Si la URL se filtra (logs, Slack, historial de n8n) sin el secret, no alcanza para dispararlo.
 
-Una vez que el secret exista del lado de n8n:
-- El secret vive solo como env var server-side. Nunca en código, nunca expuesto al cliente.
-- El botón de "correr" (el trigger) llama a una API route propia de Next.js (`/api/trigger/...`). Esa API route es la única que conoce el secret y hace el POST a n8n. El navegador del usuario nunca ve la URL real del webhook ni el secret.
+- El secret vive solo como env var server-side (`N8N_PLL_WEBHOOK_SECRET`). Nunca en código, nunca expuesto al cliente.
+- El botón de "correr" (el trigger) llama a una API route propia de Next.js (`/api/trigger-pnl`). Esa API route es la única que conoce el secret y hace el POST a n8n. El navegador del usuario nunca ve la URL real del webhook ni el secret.
 
 Además:
 - Whitelist de emails chequeada server-side en cada request a la API route, no solo en el login inicial.
-- Security headers estándar (CSP, X-Frame-Options, HSTS) configurados en `next.config` / `vercel.json`.
+- Security headers estándar (CSP, X-Frame-Options, HSTS) configurados en `next.config.ts`. El CSP usa `'unsafe-inline'` en `script-src` — ver `docs/adr/0002-csp-unsafe-inline-v1.md`.
 - CORS: la API route solo acepta requests del propio dominio.
-- No loguear el secret del webhook. Loguear el email del usuario que corre el workflow solo si hace falta para auditoría, y no en texto plano en logs públicos de Vercel.
+- No loguear el secret del webhook, nunca. El email del usuario que dispara el workflow SÍ se loguea en texto plano en los logs de Vercel (auditoría: saber quién disparó) — los logs de Vercel no son públicos, requieren acceso al proyecto. Solo se loguean disparos exitosos, no los rechazos (v1).
 
 ## Prioridad de v1
 Velocidad de shipeo esta semana. No sobre-construir para la escala que todavía no existe: nada de DB, nada de skills de diseño pesados, nada de herramientas de arquitectura para un repo de menos de 10 archivos.

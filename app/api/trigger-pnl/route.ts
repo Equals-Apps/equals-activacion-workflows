@@ -82,5 +82,18 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "trigger failed" }, { status: 502 });
   }
 
+  // 6. Auditoría — solo el disparo exitoso (los rechazos no se loguean en v1). Email en texto
+  // plano a propósito: los logs de Vercel no son públicos y el punto es saber quién disparó.
+  // Nunca el secret. Se emite recién acá para que solo cuente lo que efectivamente se disparó.
+  console.log(
+    JSON.stringify({
+      event: "trigger-pnl",
+      ts: new Date().toISOString(),
+      workflow: workflow.id,
+      user: session.user?.email,
+      confirmed: true,
+    }),
+  );
+
   return NextResponse.json({ ok: true });
 }
