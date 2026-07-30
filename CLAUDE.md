@@ -27,7 +27,7 @@ Variables por ambiente:
 **Autenticación del webhook (resuelto):** el nodo Webhook de n8n valida un header `X-Webhook-Secret` (Header Auth). El login de Google filtra quién ve el botón; el secret del header impide que alguien corra el workflow con solo tener la URL. Si la URL se filtra (logs, Slack, historial de n8n) sin el secret, no alcanza para dispararlo.
 
 - El secret vive solo como env var server-side (`N8N_PLL_WEBHOOK_SECRET`). Nunca en código, nunca expuesto al cliente.
-- El botón de "correr" (el trigger) llama a una API route propia de Next.js (`/api/trigger-pnl`). Esa API route es la única que conoce el secret y hace el POST a n8n. El navegador del usuario nunca ve la URL real del webhook ni el secret.
+- El botón de "correr" (el trigger) llama a una API route propia de Next.js (`/api/trigger`, genérica: recibe `{ workflowId, confirmed }` y busca el workflow en `WORKFLOWS`). Esa API route es la única que conoce el secret y hace el POST a n8n. El navegador del usuario nunca ve la URL real del webhook ni el secret.
 
 Además:
 - Whitelist de emails chequeada server-side en cada request a la API route, no solo en el login inicial.

@@ -32,24 +32,41 @@ export async function POST(req: Request) {
 
   // 3. Whitelist (check #2) — revalida en CADA request, no solo en el login. Una sesión JWT
   // ya emitida sigue siendo válida aunque se saque el email de la whitelist; esto es lo único
-  // que hace efectiva la revocación sin forzar logout.
-  const workflow = WORKFLOWS[0];
-  if (!isEmailAllowed(session.user?.email, workflow.env.allowedEmails)) {
+  // que hace efectiva la revocación sin forzar logout. Corta ANTES de tocar el body, así un
+  // usuario ya revocado no puede sondear qué workflows existen (mismo corte que la ruta vieja).
+  // El nombre de env var sale de los datos (env.allowedEmails), no de un literal: en v1 todos
+  // los workflows comparten EQUALS11_ALLOWED_EMAILS, así que el Set tiene un solo elemento.
+  const whitelistEnvVars = new Set(WORKFLOWS.map((w) => w.env.allowedEmails));
+  const email = session.user?.email;
+  if (![...whitelistEnvVars].some((name) => isEmailAllowed(email, name))) {
     return NextResponse.json({ error: "forbidden" }, { status: 403 });
   }
 
-  // 4. Confirmación server-side — el checkbox del cliente es solo UI; el gate real está acá.
+  // 4. Resolver el workflow pedido. El body llega recién acá, ya pasado el whitelist.
   let body: unknown;
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: "bad request" }, { status: 400 });
   }
-  if ((body as { confirmed?: unknown })?.confirmed !== true) {
+  // Optional chaining para no explotar si el body es null / no-objeto (JSON válido pero no {}).
+  const workflowId = (body as { workflowId?: unknown })?.workflowId;
+  if (!workflowId || typeof workflowId !== "string") {
+    return NextResponse.json({ error: "bad request" }, { status: 400 });
+  }
+  // find(===), nunca lookup por índice de objeto: evita confusión con __proto__/constructor.
+  const workflow = WORKFLOWS.find((w) => w.id === workflowId);
+  if (!workflow) {
+    return NextResponse.json({ error: "not found" }, { status: 404 });
+  }
+
+  // 5. Confirmación server-side — el checkbox del cliente es solo UI; el gate real está acá.
+  // Se relee del body YA parseado (nunca un segundo req.json()); === true estricto a propósito.
+  if ((body as { confirmed?: unknown }).confirmed !== true) {
     return NextResponse.json({ error: "confirmation required" }, { status: 400 });
   }
 
-  // 5. Disparar el webhook de n8n. URL y secret se leen server-side (nunca llegan al cliente),
+  // 6. Disparar el webhook de n8n. URL y secret se leen server-side (nunca llegan al cliente),
   // vía los NOMBRES de env var que guarda el workflow — la indirección del shape por-entidad.
   const webhookUrl = process.env[workflow.env.webhookUrl];
   const webhookSecret = process.env[workflow.env.webhookSecret];
@@ -82,15 +99,15 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "trigger failed" }, { status: 502 });
   }
 
-  // 6. Auditoría — solo el disparo exitoso (los rechazos no se loguean en v1). Email en texto
+  // 7. Auditoría — solo el disparo exitoso (los rechazos no se loguean en v1). Email en texto
   // plano a propósito: los logs de Vercel no son públicos y el punto es saber quién disparó.
   // Nunca el secret. Se emite recién acá para que solo cuente lo que efectivamente se disparó.
   console.log(
     JSON.stringify({
-      event: "trigger-pnl",
+      event: "trigger",
       ts: new Date().toISOString(),
       workflow: workflow.id,
-      user: session.user?.email,
+      user: email,
       confirmed: true,
     }),
   );
