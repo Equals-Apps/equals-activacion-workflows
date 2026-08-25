@@ -91,11 +91,28 @@ export async function POST(req: Request) {
       signal: AbortSignal.timeout(10_000),
     });
     if (!res.ok) {
-      console.error(`El webhook de n8n respondió ${res.status}`);
+      console.error(
+        JSON.stringify({
+          event: "trigger-failed",
+          ts: new Date().toISOString(),
+          workflow: workflow.id,
+          user: email,
+          status: res.status,
+        }),
+      );
       return NextResponse.json({ error: "trigger failed" }, { status: 502 });
     }
   } catch (err) {
-    console.error("Error llamando al webhook de n8n:", err);
+    console.error(
+      JSON.stringify({
+        event: "trigger-failed",
+        ts: new Date().toISOString(),
+        workflow: workflow.id,
+        user: email,
+        status: "network-error",
+        error: err instanceof Error ? err.message : String(err),
+      }),
+    );
     return NextResponse.json({ error: "trigger failed" }, { status: 502 });
   }
 
