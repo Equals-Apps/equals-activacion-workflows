@@ -4,9 +4,10 @@ export interface WorkflowTrigger {
   label: string;
   confirmationQuestion: string;
   successMessage: string;
-  // Opcional y todavía sin usar: reservado para cuando se pida mostrar una descripción
-  // por card, sin tener que volver a tocar el tipo. Dejar undefined en las entradas.
-  description?: string;
+  // Requerido a propósito: la card la muestra bajo el label. Estos botones escriben sobre
+  // Sheets, Drive y Slack reales, así que ningún workflow debería llegar al panel sin
+  // explicar qué hace. Si se agrega uno sin description, no compila.
+  description: string;
   env: {
     webhookUrl: string;
     webhookSecret: string;
@@ -25,6 +26,8 @@ export const WORKFLOWS: readonly WorkflowTrigger[] = [
     id: "new-pl-creation",
     entity: "equals11",
     label: "Crear P&L del mes — Equals11",
+    description:
+      "Crea el archivo de P&L del mes en Drive a partir de la hoja Config (devs y clientes) y avisa en Slack cuando termina.",
     confirmationQuestion: "¿Ya se actualizaron devs y clientes en la hoja Config?",
     successMessage:
       "Solicitud enviada — vas a recibir la confirmación en #e11-monthly-report cuando termine (puede tardar varios minutos).",
@@ -38,6 +41,8 @@ export const WORKFLOWS: readonly WorkflowTrigger[] = [
     id: "revenue-update",
     entity: "equals11",
     label: "Revenue Update",
+    description:
+      "Concilia estados y fechas de facturas ya emitidas contra la hoja Revenue del P&L vigente.",
     confirmationQuestion: GENERIC_CONFIRMATION,
     successMessage: GENERIC_SUCCESS,
     env: {
@@ -50,6 +55,8 @@ export const WORKFLOWS: readonly WorkflowTrigger[] = [
     id: "monthly-report-creator",
     entity: "equals11",
     label: "Monthly Report Creator",
+    description:
+      "Duplica la presentación del mes anterior en Slides y actualiza fechas, mes y trimestre automáticamente.",
     confirmationQuestion: GENERIC_CONFIRMATION,
     successMessage: GENERIC_SUCCESS,
     env: {
@@ -62,6 +69,8 @@ export const WORKFLOWS: readonly WorkflowTrigger[] = [
     id: "cashflow-db-update",
     entity: "equals11",
     label: "Cashflow DB Update",
+    description:
+      "Agrega las filas del Cashflow del mes más reciente a la base histórica en Sheets, evitando duplicados.",
     confirmationQuestion: GENERIC_CONFIRMATION,
     successMessage: GENERIC_SUCCESS,
     env: {
@@ -74,6 +83,8 @@ export const WORKFLOWS: readonly WorkflowTrigger[] = [
     id: "cogs-hours-update",
     entity: "equals11",
     label: "COGS Hours Update",
+    description:
+      "Cruza horas de Timekeeping por dev contra la hoja COGS del P&L vigente y actualiza los totales.",
     confirmationQuestion: GENERIC_CONFIRMATION,
     successMessage: GENERIC_SUCCESS,
     env: {
@@ -86,6 +97,8 @@ export const WORKFLOWS: readonly WorkflowTrigger[] = [
     id: "status-sync",
     entity: "equals11",
     label: "Status Sync",
+    description:
+      "Compara el estado de las facturas emitidas contra la hoja Revenue del P&L y sincroniza lo que cambió.",
     confirmationQuestion: GENERIC_CONFIRMATION,
     successMessage: GENERIC_SUCCESS,
     env: {
@@ -98,6 +111,8 @@ export const WORKFLOWS: readonly WorkflowTrigger[] = [
     id: "pnl-folder-copy-monthly",
     entity: "equals11",
     label: "P&L Folder Copy - Monthly",
+    description:
+      "Crea la carpeta del mes en Drive para P&L, Cashflow y Monthly Report, copiando los archivos base.",
     confirmationQuestion: GENERIC_CONFIRMATION,
     successMessage: GENERIC_SUCCESS,
     env: {
@@ -110,6 +125,7 @@ export const WORKFLOWS: readonly WorkflowTrigger[] = [
     id: "timekeeping-folder-copy-monthly",
     entity: "equals11",
     label: "Timekeeping Folder Copy Monthly",
+    description: "Copia la carpeta de Timekeeping del mes en Drive.",
     confirmationQuestion: GENERIC_CONFIRMATION,
     successMessage: GENERIC_SUCCESS,
     env: {
@@ -122,6 +138,8 @@ export const WORKFLOWS: readonly WorkflowTrigger[] = [
     id: "revenue-new-invoices",
     entity: "equals11",
     label: "New Invoices",
+    description:
+      "Registra en el P&L las facturas nuevas que todavía no tienen fila en Revenue.",
     confirmationQuestion: GENERIC_CONFIRMATION,
     successMessage: GENERIC_SUCCESS,
     env: {
