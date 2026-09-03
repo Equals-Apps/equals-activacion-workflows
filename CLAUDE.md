@@ -3,7 +3,7 @@
 ## Qué es esto
 App interna que corre manualmente workflows de n8n vía webhook, sin entrar a la UI de n8n.
 NO crea ni edita workflows de n8n — eso vive en el repo separado "n8n agent builder". Este repo solo llama webhooks, nunca toca el JSON de un workflow.
-v1: un solo workflow ("New P&L creation"), dos usuarios, deploy en Vercel Production (`main`). Ver `docs/adr/0003-auth-y-config-shape.md`.
+v1: N workflows de Equals11 (arrancó con uno solo, "New P&L creation"; generalizado el 2026-07-30 — ver decisión resuelta en "Cuándo esto deja de ser v1"), dos usuarios, deploy en Vercel Production (`main`). Ver `docs/adr/0003-auth-y-config-shape.md`.
 
 ## Stack
 - Next.js + TypeScript, deploy en Vercel.
@@ -42,7 +42,17 @@ Velocidad de shipeo esta semana. No sobre-construir para la escala que todavía 
 Ver `CONTEXT.md` — glosario del negocio (verbos, entidades, ambientes) generado con `/grill-with-docs`.
 
 ## Cuándo esto deja de ser v1 (revisar entonces, no antes)
-- Más de un workflow de Equals11 → recién ahí evaluar si conviene una tabla de "workflows disponibles" en vez de hardcodear uno solo. Si se agrega DB, RLS es obligatorio desde el primer día que exista una tabla.
+
+**Resuelto (documentado 2026-09-03):** el trigger de "más de un workflow de Equals11" ya se activó — el 2026-07-30 `lib/workflows.ts` se generalizó a N workflows (ver `.env.example` para la lista completa, incluye pares URL+secret pendientes de configurar en n8n). Decisión tomada: **sin tabla intermedia ni DB.** La lista sigue siendo un array hardcodeado en `lib/workflows.ts`; cada entrada trae su propio par de env vars y su propia referencia de whitelist. Se evaluó explícitamente y se descartó la tabla porque el volumen (un puñado de workflows, sin altas/bajas en runtime, sin necesidad de que un usuario final los edite) no justifica el costo de agregar DB — y agregar DB sigue disparando RLS obligatorio desde el primer día, sin contrapartida real todavía.
+
 - Se suma una segunda entidad (ej. Tekton) → esto NO es solo "otro workflow": implica repensar whitelist y webhook como algo por-entidad, no una sola env var global por ambiente. Ver `docs/adr/0001-v1-hardcodea-equals11.md`.
 - Repo pasa de ~20 archivos → recién ahí vale la pena una herramienta de indexado de dependencias.
 - Ambiente de producción real, más usuarios → recién ahí vale la pena invertir en pulir el diseño del dashboard y en QA automatizado de los flujos de login/whitelist/trigger antes de cada deploy.
+
+## `.claude/skills/` es la copia congelada — no reinstalar
+
+`.claude/skills/*` (commiteado en este repo) es la copia de referencia y confiable de los skills de Claude Code para este proyecto. `.agents/skills/` es una copia local gitignoreada, en teoría reconstituible con `npx skills@latest add mattpocock/skills` a partir de `skills-lock.json`.
+
+**No correr ese comando para "reconstituir" o "actualizar" skills.** Verificado el 2026-09-03: la fuente (`mattpocock/skills` en GitHub) tuvo deriva significativa desde que se generó el lockfile — 8 de los 41 skills listados ya no existen en la fuente, y de los 33 restantes, 30 traen contenido distinto al congelado acá (confirmado archivo por archivo, no solo por hash). El comando no valida ni alerta sobre nada de esto: sobreescribe `skills-lock.json` con lo que encuentre en upstream en ese momento, sin comparar contra la versión anterior ni pedir confirmación.
+
+Si en el futuro se quiere modernizar algún skill puntual, hacerlo a mano — comparando explícitamente contra la fuente, nunca con un `add` ciego.
