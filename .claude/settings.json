@@ -8,7 +8,22 @@
       "PowerShell(winget --version)",
       "PowerShell(winget list --id GitHub.cli -e 2>&1)",
       "PowerShell(winget install --id GitHub.cli -e --accept-source-agreements --accept-package-agreements)",
-      "PowerShell(winget install --id GitHub.cli -e --source winget --accept-source-agreements --accept-package-agreements)"
+      "PowerShell(winget install --id GitHub.cli -e --source winget --accept-source-agreements --accept-package-agreements)",
+      "Bash(mkdir -p \"/tmp_preview\" 2>&1; echo ok)",
+      "Bash(pnpm --version)",
+      "Bash(npm run *)",
+      "Bash(git commit -m ' *)",
+      "PowerShell(npm install -D tailwindcss@4.3.3 \"@tailwindcss/postcss@4.3.3\" \"postcss@^8.5.16\" 2>&1)",
+      "PowerShell(node -p \"require\\('postcss/package.json'\\).version + ' | tw:' + require\\('tailwindcss/package.json'\\).version\")",
+      "PowerShell(npm audit --json 2>$null)",
+      "PowerShell(node -e \"let d='';process.stdin.on\\('data',c=>d+=c\\).on\\('end',\\(\\)=>{const a=JSON.parse\\(d\\);Object.entries\\(a.vulnerabilities||{}\\).forEach\\(\\([k,v]\\)=>console.log\\(v.severity,k,'via',JSON.stringify\\(v.via&&v.via.map?v.via.map\\(x=>x.title||x\\):v.via\\)\\)\\)}\\)\")",
+      "PowerShell(npm run build 2>&1)",
+      "PowerShell($c = Get-Content \".next\\\\static\\\\chunks\\\\44gi56on5hlww.css\" -Raw; foreach \\($t in @\\('00609f','004e80','00bff2','--font-sans','animate-spin','grid-cols-3','accent-color','aria-busy','emerald','outline-color'\\)\\) { $hit = if \\($c -match [regex]::Escape\\($t\\)\\) { 'SI ' } else { 'NO!' }; Write-Output \"$hit $t\" })",
+      "PowerShell($env:PORT=3111; npm run dev -- --port 3111)",
+      "Bash(node -e ' *)"
+    ],
+    "additionalDirectories": [
+      "."
     ]
   }
 }
