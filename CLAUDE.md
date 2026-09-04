@@ -3,7 +3,7 @@
 ## Qué es esto
 App interna que corre manualmente workflows de n8n vía webhook, sin entrar a la UI de n8n.
 NO crea ni edita workflows de n8n — eso vive en el repo separado "n8n agent builder". Este repo solo llama webhooks, nunca toca el JSON de un workflow.
-v1: N workflows de Equals11 (arrancó con uno solo, "New P&L creation"; generalizado el 2026-07-30 — ver decisión resuelta en "Cuándo esto deja de ser v1"), dos usuarios, deploy en Vercel Production (`main`). Ver `docs/adr/0003-auth-y-config-shape.md`.
+v1: N workflows de Equals11 (arrancó con uno solo, "New P&L creation"; generalizado el 2026-07-30) más Tekton como segunda entidad (sumada el 2026-09-03) — ver ambas decisiones resueltas en "Cuándo esto deja de ser v1". Whitelist y pestañas por-entidad, deploy en Vercel Production (`main`). Ver `docs/adr/0003-auth-y-config-shape.md`.
 
 ## Stack
 - Next.js + TypeScript, deploy en Vercel.
@@ -17,9 +17,8 @@ Un solo repo. Sandbox y producción se manejan con env vars distintas por ambien
 Cada ambiente tiene su propia URL de webhook de n8n, su propio secret, y su propia whitelist de emails. Nunca reusar ni mezclar env vars entre ambientes.
 
 Variables por ambiente:
-- `N8N_PLL_WEBHOOK_URL`
-- `N8N_PLL_WEBHOOK_SECRET`
-- `EQUALS11_ALLOWED_EMAILS` (lista separada por comas)
+- `N8N_PLL_WEBHOOK_URL` / `N8N_PLL_WEBHOOK_SECRET` — y un par `N8N_<WORKFLOW>_WEBHOOK_URL/SECRET` más por cada workflow adicional de `lib/workflows.ts` (ver `.env.example` para la lista completa)
+- `EQUALS11_ALLOWED_EMAILS`, `TEKTON_ALLOWED_EMAILS` (por-entidad, lista separada por comas — ver `lib/entities.ts`)
 - `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET` (Auth.js v5)
 
 ## Seguridad — no negociable
@@ -45,7 +44,8 @@ Ver `CONTEXT.md` — glosario del negocio (verbos, entidades, ambientes) generad
 
 **Resuelto (documentado 2026-09-03):** el trigger de "más de un workflow de Equals11" ya se activó — el 2026-07-30 `lib/workflows.ts` se generalizó a N workflows (ver `.env.example` para la lista completa, incluye pares URL+secret pendientes de configurar en n8n). Decisión tomada: **sin tabla intermedia ni DB.** La lista sigue siendo un array hardcodeado en `lib/workflows.ts`; cada entrada trae su propio par de env vars y su propia referencia de whitelist. Se evaluó explícitamente y se descartó la tabla porque el volumen (un puñado de workflows, sin altas/bajas en runtime, sin necesidad de que un usuario final los edite) no justifica el costo de agregar DB — y agregar DB sigue disparando RLS obligatorio desde el primer día, sin contrapartida real todavía.
 
-- Se suma una segunda entidad (ej. Tekton) → esto NO es solo "otro workflow": implica repensar whitelist y webhook como algo por-entidad, no una sola env var global por ambiente. Ver `docs/adr/0001-v1-hardcodea-equals11.md`.
+**Resuelto (documentado 2026-09-03):** el trigger de "se suma una segunda entidad" también se activó — Tekton se sumó como segunda entidad (pestaña propia, tokens de marca propios en `app/globals.css`, dos workflows placeholder — "Workflow INC" / "Workflow SAC" — todavía sin webhook). Decisión tomada: whitelist por-entidad vía un registro chico (`lib/entities.ts`: id + nombre de env var de whitelist por entidad), no una tabla ni DB — la forma que `docs/adr/0001-v1-hardcodea-equals11.md` había anticipado sin comprometerse. `auth.ts` pasó a validar "¿pertenece a alguna entidad?" en el login, en vez de hardcodear Equals11; qué pestañas ve cada quien se decide server-side en `app/page.tsx`, sin ruta nueva ni `middleware.ts`. De paso apareció (y se corrigió) un bug real en `/api/trigger`: el chequeo de whitelist comparaba contra "está en *alguna* whitelist de las que aparecen en `WORKFLOWS`", no contra la whitelist específica del workflow pedido — inofensivo mientras solo existía `EQUALS11_ALLOWED_EMAILS`, pero en cuanto `TEKTON_ALLOWED_EMAILS` tuviera un solo miembro, esa persona podía pedir por POST directo un `workflowId` de Equals11 y dispararlo. Pendiente, y no de código: la pantalla de consentimiento de Google OAuth está en modo Testing con lista de test users (ver `docs/HANDOFF.md`) — cualquier correo nuevo necesita cargarse ahí a mano o Google lo bloquea antes de llegar a nuestra whitelist.
+
 - Repo pasa de ~20 archivos → recién ahí vale la pena una herramienta de indexado de dependencias.
 - Ambiente de producción real, más usuarios → recién ahí vale la pena invertir en pulir el diseño del dashboard y en QA automatizado de los flujos de login/whitelist/trigger antes de cada deploy.
 

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { isEmailAllowed } from "@/lib/allowed-emails";
+import { ENTITIES } from "@/lib/entities";
 import { WORKFLOWS } from "@/lib/workflows";
 
 // El único cliente legítimo es nuestro propio frontend en el navegador, que siempre
@@ -30,19 +31,19 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
-  // 3. Whitelist (check #2) — revalida en CADA request, no solo en el login. Una sesión JWT
-  // ya emitida sigue siendo válida aunque se saque el email de la whitelist; esto es lo único
-  // que hace efectiva la revocación sin forzar logout. Corta ANTES de tocar el body, así un
-  // usuario ya revocado no puede sondear qué workflows existen (mismo corte que la ruta vieja).
-  // El nombre de env var sale de los datos (env.allowedEmails), no de un literal: en v1 todos
-  // los workflows comparten EQUALS11_ALLOWED_EMAILS, así que el Set tiene un solo elemento.
-  const whitelistEnvVars = new Set(WORKFLOWS.map((w) => w.env.allowedEmails));
+  // 3. Whitelist, primera pasada (check #2) — revalida en CADA request, no solo en el login.
+  // Una sesión JWT ya emitida sigue siendo válida aunque se saque el email de la whitelist;
+  // esto es lo único que hace efectiva la revocación sin forzar logout. Corta ANTES de tocar
+  // el body, así alguien que no pertenece a NINGUNA entidad no puede sondear qué workflows
+  // existen. Ojo: esto NO alcanza como único chequeo desde que hay más de una entidad — solo
+  // descarta a quien no está en ninguna whitelist. Quién puede correr ESTE workflow puntual
+  // se revalida en el paso 5, ya con el workflow resuelto.
   const email = session.user?.email;
-  if (![...whitelistEnvVars].some((name) => isEmailAllowed(email, name))) {
+  if (!ENTITIES.some((entity) => isEmailAllowed(email, entity.allowedEmailsEnv))) {
     return NextResponse.json({ error: "forbidden" }, { status: 403 });
   }
 
-  // 4. Resolver el workflow pedido. El body llega recién acá, ya pasado el whitelist.
+  // 4. Resolver el workflow pedido. El body llega recién acá, ya pasado el chequeo #3.
   let body: unknown;
   try {
     body = await req.json();
@@ -60,13 +61,22 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "not found" }, { status: 404 });
   }
 
-  // 5. Confirmación server-side — el checkbox del cliente es solo UI; el gate real está acá.
+  // 5. Whitelist, segunda pasada — específica del workflow resuelto. El paso 3 solo prueba
+  // pertenencia a ALGUNA entidad; alguien de Tekton pasa ese filtro y, sin este segundo
+  // chequeo, podría pedir un workflowId de Equals11 (u otra entidad) directo por POST y
+  // dispararlo. Recién acá se sabe qué workflow es, así que recién acá se puede confirmar
+  // que el email está específicamente en SU whitelist.
+  if (!isEmailAllowed(email, workflow.env.allowedEmails)) {
+    return NextResponse.json({ error: "forbidden" }, { status: 403 });
+  }
+
+  // 6. Confirmación server-side — el checkbox del cliente es solo UI; el gate real está acá.
   // Se relee del body YA parseado (nunca un segundo req.json()); === true estricto a propósito.
   if ((body as { confirmed?: unknown }).confirmed !== true) {
     return NextResponse.json({ error: "confirmation required" }, { status: 400 });
   }
 
-  // 6. Disparar el webhook de n8n. URL y secret se leen server-side (nunca llegan al cliente),
+  // 7. Disparar el webhook de n8n. URL y secret se leen server-side (nunca llegan al cliente),
   // vía los NOMBRES de env var que guarda el workflow — la indirección del shape por-entidad.
   const webhookUrl = process.env[workflow.env.webhookUrl];
   const webhookSecret = process.env[workflow.env.webhookSecret];
@@ -116,7 +126,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "trigger failed" }, { status: 502 });
   }
 
-  // 7. Auditoría — solo el disparo exitoso (los rechazos no se loguean en v1). Email en texto
+  // 8. Auditoría — solo el disparo exitoso (los rechazos no se loguean en v1). Email en texto
   // plano a propósito: los logs de Vercel no son públicos y el punto es saber quién disparó.
   // Nunca el secret. Se emite recién acá para que solo cuente lo que efectivamente se disparó.
   console.log(

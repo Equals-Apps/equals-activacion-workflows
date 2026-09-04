@@ -1,6 +1,8 @@
+import type { EntityId } from "@/lib/entities";
+
 export interface WorkflowTrigger {
   id: string;
-  entity: "equals11";
+  entity: EntityId;
   label: string;
   confirmationQuestion: string;
   successMessage: string;

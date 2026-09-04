@@ -21,7 +21,7 @@ La holding matriz. Dueña de las distintas entidades/proyectos operativos que co
 Entidad operativa bajo Boring Holding. Único scope de v1 de este panel — todos los workflows de esta versión son de Equals11.
 
 **Tekton**:
-Otra entidad operativa bajo Boring Holding, fuera de scope de v1. Candidata a sumarse en versiones futuras del panel.
+Otra entidad operativa bajo Boring Holding. Sumada al panel el 2026-09-03 como su propia pestaña — hoy con dos workflows placeholder ("Workflow INC" y "Workflow SAC", uno por razón social) todavía sin webhook de n8n configurado.
 
 ### Workflows
 
