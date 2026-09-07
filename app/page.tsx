@@ -128,12 +128,26 @@ export default async function Home({
     </div>
   );
 
+  const tektonWorkflows = WORKFLOWS.filter((workflow) => workflow.entity === "tekton").map(
+    (workflow) => ({
+      workflow,
+      configured: Boolean(
+        process.env[workflow.env.webhookUrl] && process.env[workflow.env.webhookSecret],
+      ),
+    }),
+  );
+
   // Orden fijo (el de ENTITIES), no el de allowedEntities: así la posición de cada pestaña no
   // depende del orden en que matchearon las whitelists.
   const tabs = ENTITIES.filter((entity) => allowedEntities.includes(entity.id)).map((entity) => ({
     id: entity.id,
     label: entity.label,
-    content: entity.id === "equals11" ? equals11Content : <TektonPanel />,
+    content:
+      entity.id === "equals11" ? (
+        equals11Content
+      ) : (
+        <TektonPanel workflows={tektonWorkflows} />
+      ),
   }));
 
   return (

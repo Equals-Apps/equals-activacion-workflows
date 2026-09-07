@@ -150,4 +150,19 @@ export const WORKFLOWS: readonly WorkflowTrigger[] = [
       allowedEmails: "EQUALS11_ALLOWED_EMAILS",
     },
   },
+  {
+    id: "tekton-inc",
+    entity: "tekton",
+    label: "Workflow INC",
+    description:
+      "Convierte el P&L contable de Tekton INC en el P&L de management: recalcula " +
+      "regalías, rentings y vacaciones con el criterio que usa management, no el contable.",
+    confirmationQuestion: GENERIC_CONFIRMATION,
+    successMessage: GENERIC_SUCCESS,
+    env: {
+      webhookUrl: "N8N_TEKTON_INC_WEBHOOK_URL",
+      webhookSecret: "N8N_TEKTON_INC_WEBHOOK_SECRET",
+      allowedEmails: "TEKTON_ALLOWED_EMAILS",
+    },
+  },
 ];
