@@ -11,6 +11,17 @@
   --color-e11-blue: #00609f;
   --color-e11-blue-dark: #004e80;
   --color-e11-cyan: #00bff2;
+
+  /* Acento de la pestaña Producción de Equals11 — ámbar/dorado a propósito, no rojo, para no
+     competir con la paleta de "error" (red-*) que ya usa WorkflowCard para el estado de fallo.
+     PLACEHOLDER: elegido por familia de color (ámbar, como el ícono de advertencia de
+     equals11.com), no calcado pixel a pixel de la marca — confirmar/reemplazar el hex exacto
+     al revisar Fase 4. --color-e11-production (#F59E0B) es DECORATIVO: 2.15:1 sobre blanco,
+     mismo criterio que e11-cyan — solo barra de acento, borde de hover y fondo de badge, nunca
+     texto. --color-e11-production-dark (#92400E) sí pasa AA (7.09:1 sobre blanco): es el que
+     se usa como texto del badge y como fondo del botón "Ejecutar workflow" con texto blanco. */
+  --color-e11-production: #f59e0b;
+  --color-e11-production-dark: #92400e;
 }
 
 /* Identidad Tekton. Igual que e11-cyan arriba, --color-tk-secondary (1.83:1 sobre blanco)

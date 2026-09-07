@@ -1,6 +1,6 @@
 import { isEmailAllowed } from "@/lib/allowed-emails";
 
-export type EntityId = "equals11" | "tekton";
+export type EntityId = "equals11" | "equals11-production" | "tekton";
 
 export interface Entity {
   id: EntityId;
@@ -13,7 +13,12 @@ export interface Entity {
 }
 
 export const ENTITIES: readonly Entity[] = [
-  { id: "equals11", label: "Equals11", allowedEmailsEnv: "EQUALS11_ALLOWED_EMAILS" },
+  { id: "equals11", label: "Equals11 — Sandbox", allowedEmailsEnv: "EQUALS11_ALLOWED_EMAILS" },
+  {
+    id: "equals11-production",
+    label: "Equals11 — Producción",
+    allowedEmailsEnv: "EQUALS11_PRODUCTION_ALLOWED_EMAILS",
+  },
   { id: "tekton", label: "Tekton", allowedEmailsEnv: "TEKTON_ALLOWED_EMAILS" },
 ];
 

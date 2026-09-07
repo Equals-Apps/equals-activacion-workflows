@@ -28,9 +28,16 @@ function Spinner() {
 export function WorkflowCard({
   workflow,
   configured,
+  isProduction,
 }: {
   workflow: WorkflowTrigger;
   configured: boolean;
+  // Flag puramente visual (acento ámbar + badge "PRODUCCIÓN"): quién arma cada bloque de
+  // contenido (equals11Content vs equals11ProductionContent en page.tsx) ya sabe de qué
+  // entity es cada workflow, así que se lo pasa resuelto acá. La card no importa ENTITIES
+  // ni deriva el entorno por su cuenta — evita que un día alguien intente "adivinar"
+  // producción por el id (ej. .endsWith("-production")) en vez de por la entity real.
+  isProduction: boolean;
 }) {
   const [confirmed, setConfirmed] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -62,13 +69,20 @@ export function WorkflowCard({
       className={
         "flex h-full flex-col overflow-hidden rounded-xl border bg-white shadow-sm " +
         (configured
-          ? "border-slate-200 transition-shadow hover:border-e11-cyan hover:shadow-md"
+          ? "border-slate-200 transition-shadow hover:shadow-md " +
+            (isProduction ? "hover:border-e11-production" : "hover:border-e11-cyan")
           : "border-slate-200")
       }
     >
-      {/* Barra de acento: es el único uso del celeste de marca. Puramente decorativa —
-          no comunica nada que dependa de percibirla. Ver nota de contraste en globals.css. */}
-      <div className={configured ? "h-1 bg-e11-cyan" : "h-1 bg-slate-200"} />
+      {/* Barra de acento: celeste en sandbox/Tekton-N/A, ámbar en Producción. Puramente
+          decorativa — no comunica nada que dependa solo de percibirla, el badge de al lado
+          del título es la señal redundante. Ver nota de contraste en globals.css. */}
+      <div
+        className={
+          "h-1 " +
+          (configured ? (isProduction ? "bg-e11-production" : "bg-e11-cyan") : "bg-slate-200")
+        }
+      />
 
       <div className="flex flex-1 flex-col p-5">
         <div className="flex items-start justify-between gap-3">
@@ -80,11 +94,20 @@ export function WorkflowCard({
           >
             {workflow.label}
           </h2>
-          {!configured && (
-            <span className="shrink-0 rounded-full border border-slate-200 bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-500">
-              No configurado
-            </span>
-          )}
+          {/* Los dos badges son independientes: una card de producción sin configurar
+              todavía muestra ambos, apilados. */}
+          <div className="flex shrink-0 flex-col items-end gap-1">
+            {isProduction && (
+              <span className="rounded-full border border-e11-production bg-e11-production/15 px-2 py-0.5 text-xs font-semibold text-e11-production-dark">
+                PRODUCCIÓN
+              </span>
+            )}
+            {!configured && (
+              <span className="rounded-full border border-slate-200 bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-500">
+                No configurado
+              </span>
+            )}
+          </div>
         </div>
 
         <p
@@ -135,7 +158,12 @@ export function WorkflowCard({
                   checked={confirmed}
                   disabled={submitting}
                   onChange={(e) => setConfirmed(e.target.checked)}
-                  className="mt-0.5 size-4 shrink-0 accent-e11-blue focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-e11-blue"
+                  className={
+                    "mt-0.5 size-4 shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 " +
+                    (isProduction
+                      ? "accent-e11-production-dark focus-visible:outline-e11-production-dark"
+                      : "accent-e11-blue focus-visible:outline-e11-blue")
+                  }
                 />
                 <span>{workflow.confirmationQuestion}</span>
               </label>
@@ -146,7 +174,12 @@ export function WorkflowCard({
                 aria-busy={submitting}
                 aria-label={`Ejecutar workflow: ${workflow.label}`}
                 onClick={handleClick}
-                className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg bg-e11-blue px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-e11-blue-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-e11-blue disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+                className={
+                  "mt-3 flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400 " +
+                  (isProduction
+                    ? "bg-e11-production-dark hover:brightness-90 focus-visible:outline-e11-production-dark"
+                    : "bg-e11-blue hover:bg-e11-blue-dark focus-visible:outline-e11-blue")
+                }
               >
                 {submitting ? (
                   <>

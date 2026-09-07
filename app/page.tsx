@@ -123,8 +123,35 @@ export default async function Home({
         const configured = Boolean(
           process.env[workflow.env.webhookUrl] && process.env[workflow.env.webhookSecret],
         );
-        return <WorkflowCard key={workflow.id} workflow={workflow} configured={configured} />;
+        return (
+          <WorkflowCard
+            key={workflow.id}
+            workflow={workflow}
+            configured={configured}
+            isProduction={false}
+          />
+        );
       })}
+    </div>
+  );
+
+  const equals11ProductionContent = (
+    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+      {WORKFLOWS.filter((workflow) => workflow.entity === "equals11-production").map(
+        (workflow) => {
+          const configured = Boolean(
+            process.env[workflow.env.webhookUrl] && process.env[workflow.env.webhookSecret],
+          );
+          return (
+            <WorkflowCard
+              key={workflow.id}
+              workflow={workflow}
+              configured={configured}
+              isProduction={true}
+            />
+          );
+        },
+      )}
     </div>
   );
 
@@ -139,16 +166,17 @@ export default async function Home({
 
   // Orden fijo (el de ENTITIES), no el de allowedEntities: así la posición de cada pestaña no
   // depende del orden en que matchearon las whitelists.
-  const tabs = ENTITIES.filter((entity) => allowedEntities.includes(entity.id)).map((entity) => ({
-    id: entity.id,
-    label: entity.label,
-    content:
-      entity.id === "equals11" ? (
-        equals11Content
-      ) : (
-        <TektonPanel workflows={tektonWorkflows} />
-      ),
-  }));
+  const tabs = ENTITIES.filter((entity) => allowedEntities.includes(entity.id)).map((entity) => {
+    let content: React.ReactNode;
+    if (entity.id === "equals11") {
+      content = equals11Content;
+    } else if (entity.id === "equals11-production") {
+      content = equals11ProductionContent;
+    } else {
+      content = <TektonPanel workflows={tektonWorkflows} />;
+    }
+    return { id: entity.id, label: entity.label, content };
+  });
 
   return (
     <AppShell tabs={tabs} email={email} initialActiveId={tabHint} signOutAction={signOutAction} />

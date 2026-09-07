@@ -37,12 +37,21 @@ export function AppShell({
   );
 
   const isTekton = activeId === "tekton";
+  // Mismo criterio que isTekton: acá también cambia marca (acento + badge), no la pestaña
+  // completa a modo oscuro — Equals11 Producción sigue siendo tema claro, la diferencia es
+  // ámbar en vez de celeste, más el badge "PRODUCCIÓN" que Sandbox no tiene.
+  const isEquals11Production = activeId === "equals11-production";
 
   return (
     <div className={isTekton ? "min-h-screen bg-tk-black" : "min-h-screen"}>
       <header
         className={
-          "border-b " + (isTekton ? "border-tk-primary bg-tk-primary" : "border-slate-200 bg-white")
+          "border-b " +
+          (isTekton
+            ? "border-tk-primary bg-tk-primary"
+            : isEquals11Production
+              ? "border-e11-production-dark bg-amber-50"
+              : "border-slate-200 bg-white")
         }
       >
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4">
@@ -59,10 +68,23 @@ export function AppShell({
               <>
                 {/* El logo ya contiene la palabra "Equals11": el h1 no la repite. */}
                 <Image src={logoEquals11} alt="Equals11" priority className="h-8 w-auto" />
-                <span aria-hidden="true" className="h-6 w-px bg-slate-200" />
-                <h1 className="text-sm font-semibold text-e11-blue sm:text-base">
+                <span
+                  aria-hidden="true"
+                  className={"h-6 w-px " + (isEquals11Production ? "bg-e11-production" : "bg-slate-200")}
+                />
+                <h1
+                  className={
+                    "text-sm font-semibold sm:text-base " +
+                    (isEquals11Production ? "text-e11-production-dark" : "text-e11-blue")
+                  }
+                >
                   Panel de Triggers
                 </h1>
+                {isEquals11Production && (
+                  <span className="rounded-full border border-e11-production-dark bg-e11-production/20 px-2.5 py-1 text-xs font-bold uppercase tracking-wide text-e11-production-dark">
+                    Producción
+                  </span>
+                )}
               </>
             )}
           </div>
