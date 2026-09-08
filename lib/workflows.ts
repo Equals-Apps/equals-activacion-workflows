@@ -40,17 +40,17 @@ export const WORKFLOWS: readonly WorkflowTrigger[] = [
     },
   },
   {
-    id: "revenue-update",
+    id: "revenue-new-invoices",
     entity: "equals11",
-    label: "Revenue Update",
+    label: "New Invoices",
     description:
-      "Concilia estados y fechas de facturas ya emitidas contra la hoja Revenue del P&L vigente. " +
+      "Registra en el P&L las facturas nuevas que todavía no tienen fila en Revenue. " +
       "También recalcula las comisiones automáticamente (dispara Commissions Update dentro de n8n).",
     confirmationQuestion: GENERIC_CONFIRMATION,
     successMessage: GENERIC_SUCCESS,
     env: {
-      webhookUrl: "N8N_REVENUE_UPDATE_WEBHOOK_URL",
-      webhookSecret: "N8N_REVENUE_UPDATE_WEBHOOK_SECRET",
+      webhookUrl: "N8N_REVENUE_NEW_INVOICES_WEBHOOK_URL",
+      webhookSecret: "N8N_REVENUE_NEW_INVOICES_WEBHOOK_SECRET",
       allowedEmails: "EQUALS11_ALLOWED_EMAILS",
     },
   },
@@ -138,17 +138,17 @@ export const WORKFLOWS: readonly WorkflowTrigger[] = [
     },
   },
   {
-    id: "revenue-new-invoices",
+    id: "revenue-update",
     entity: "equals11",
-    label: "New Invoices",
+    label: "Revenue Update",
     description:
-      "Registra en el P&L las facturas nuevas que todavía no tienen fila en Revenue. " +
+      "Concilia estados y fechas de facturas ya emitidas contra la hoja Revenue del P&L vigente. " +
       "También recalcula las comisiones automáticamente (dispara Commissions Update dentro de n8n).",
     confirmationQuestion: GENERIC_CONFIRMATION,
     successMessage: GENERIC_SUCCESS,
     env: {
-      webhookUrl: "N8N_REVENUE_NEW_INVOICES_WEBHOOK_URL",
-      webhookSecret: "N8N_REVENUE_NEW_INVOICES_WEBHOOK_SECRET",
+      webhookUrl: "N8N_REVENUE_UPDATE_WEBHOOK_URL",
+      webhookSecret: "N8N_REVENUE_UPDATE_WEBHOOK_SECRET",
       allowedEmails: "EQUALS11_ALLOWED_EMAILS",
     },
   },
@@ -175,17 +175,17 @@ export const WORKFLOWS: readonly WorkflowTrigger[] = [
     },
   },
   {
-    id: "revenue-update-production",
+    id: "revenue-new-invoices-production",
     entity: "equals11-production",
-    label: "Revenue Update",
+    label: "New Invoices",
     description:
-      "Concilia estados y fechas de facturas ya emitidas contra la hoja Revenue del P&L vigente. " +
+      "Registra en el P&L las facturas nuevas que todavía no tienen fila en Revenue. " +
       "También recalcula las comisiones automáticamente (dispara Commissions Update dentro de n8n).",
     confirmationQuestion: GENERIC_CONFIRMATION,
     successMessage: GENERIC_SUCCESS,
     env: {
-      webhookUrl: "N8N_REVENUE_UPDATE_PRODUCTION_WEBHOOK_URL",
-      webhookSecret: "N8N_REVENUE_UPDATE_PRODUCTION_WEBHOOK_SECRET",
+      webhookUrl: "N8N_REVENUE_NEW_INVOICES_PRODUCTION_WEBHOOK_URL",
+      webhookSecret: "N8N_REVENUE_NEW_INVOICES_PRODUCTION_WEBHOOK_SECRET",
       allowedEmails: "EQUALS11_PRODUCTION_ALLOWED_EMAILS",
     },
   },
@@ -232,17 +232,17 @@ export const WORKFLOWS: readonly WorkflowTrigger[] = [
     },
   },
   {
-    id: "revenue-new-invoices-production",
+    id: "revenue-update-production",
     entity: "equals11-production",
-    label: "New Invoices",
+    label: "Revenue Update",
     description:
-      "Registra en el P&L las facturas nuevas que todavía no tienen fila en Revenue. " +
+      "Concilia estados y fechas de facturas ya emitidas contra la hoja Revenue del P&L vigente. " +
       "También recalcula las comisiones automáticamente (dispara Commissions Update dentro de n8n).",
     confirmationQuestion: GENERIC_CONFIRMATION,
     successMessage: GENERIC_SUCCESS,
     env: {
-      webhookUrl: "N8N_REVENUE_NEW_INVOICES_PRODUCTION_WEBHOOK_URL",
-      webhookSecret: "N8N_REVENUE_NEW_INVOICES_PRODUCTION_WEBHOOK_SECRET",
+      webhookUrl: "N8N_REVENUE_UPDATE_PRODUCTION_WEBHOOK_URL",
+      webhookSecret: "N8N_REVENUE_UPDATE_PRODUCTION_WEBHOOK_SECRET",
       allowedEmails: "EQUALS11_PRODUCTION_ALLOWED_EMAILS",
     },
   },

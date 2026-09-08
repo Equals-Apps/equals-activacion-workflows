@@ -32,7 +32,7 @@ export function WorkflowCard({
 }: {
   workflow: WorkflowTrigger;
   configured: boolean;
-  // Flag puramente visual (acento ámbar + badge "PRODUCCIÓN"): quién arma cada bloque de
+  // Flag puramente visual (acento e11-blue-dark + badge "PRODUCCIÓN"): quién arma cada bloque de
   // contenido (equals11Content vs equals11ProductionContent en page.tsx) ya sabe de qué
   // entity es cada workflow, así que se lo pasa resuelto acá. La card no importa ENTITIES
   // ni deriva el entorno por su cuenta — evita que un día alguien intente "adivinar"
@@ -70,17 +70,17 @@ export function WorkflowCard({
         "flex h-full flex-col overflow-hidden rounded-xl border bg-white shadow-sm " +
         (configured
           ? "border-slate-200 transition-shadow hover:shadow-md " +
-            (isProduction ? "hover:border-e11-production" : "hover:border-e11-cyan")
+            (isProduction ? "hover:border-e11-blue-dark" : "hover:border-e11-cyan")
           : "border-slate-200")
       }
     >
-      {/* Barra de acento: celeste en sandbox/Tekton-N/A, ámbar en Producción. Puramente
-          decorativa — no comunica nada que dependa solo de percibirla, el badge de al lado
-          del título es la señal redundante. Ver nota de contraste en globals.css. */}
+      {/* Barra de acento: celeste en sandbox/Tekton-N/A, azul (e11-blue-dark) en Producción.
+          Puramente decorativa — no comunica nada que dependa solo de percibirla, el badge de
+          al lado del título es la señal redundante. Ver nota de contraste en globals.css. */}
       <div
         className={
           "h-1 " +
-          (configured ? (isProduction ? "bg-e11-production" : "bg-e11-cyan") : "bg-slate-200")
+          (configured ? (isProduction ? "bg-e11-blue-dark" : "bg-e11-cyan") : "bg-slate-200")
         }
       />
 
@@ -94,14 +94,7 @@ export function WorkflowCard({
           >
             {workflow.label}
           </h2>
-          {/* Los dos badges son independientes: una card de producción sin configurar
-              todavía muestra ambos, apilados. */}
           <div className="flex shrink-0 flex-col items-end gap-1">
-            {isProduction && (
-              <span className="rounded-full border border-e11-production bg-e11-production/15 px-2 py-0.5 text-xs font-semibold text-e11-production-dark">
-                PRODUCCIÓN
-              </span>
-            )}
             {!configured && (
               <span className="rounded-full border border-slate-200 bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-500">
                 No configurado
@@ -161,7 +154,7 @@ export function WorkflowCard({
                   className={
                     "mt-0.5 size-4 shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 " +
                     (isProduction
-                      ? "accent-e11-production-dark focus-visible:outline-e11-production-dark"
+                      ? "accent-e11-blue-dark focus-visible:outline-e11-blue-dark"
                       : "accent-e11-blue focus-visible:outline-e11-blue")
                   }
                 />
@@ -175,10 +168,10 @@ export function WorkflowCard({
                 aria-label={`Ejecutar workflow: ${workflow.label}`}
                 onClick={handleClick}
                 className={
-                  "mt-3 flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400 " +
+                  "mt-3 flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed " +
                   (isProduction
-                    ? "bg-e11-production-dark hover:brightness-90 focus-visible:outline-e11-production-dark"
-                    : "bg-e11-blue hover:bg-e11-blue-dark focus-visible:outline-e11-blue")
+                    ? "border-2 border-e11-blue-dark bg-white text-e11-blue-dark hover:bg-slate-50 focus-visible:outline-e11-blue-dark disabled:bg-e11-blue-dark disabled:text-white"
+                    : "bg-e11-blue text-white hover:bg-e11-blue-dark focus-visible:outline-e11-blue disabled:bg-slate-100 disabled:text-slate-400")
                 }
               >
                 {submitting ? (

@@ -45,7 +45,7 @@ export function CompanyTabs({
                   ? tab.id === "tekton"
                     ? "border-tk-primary text-tk-primary"
                     : tab.id === "equals11-production"
-                      ? "border-e11-production-dark text-e11-production-dark"
+                      ? "rounded-full border-transparent bg-e11-blue-dark text-white"
                       : "border-e11-blue text-e11-blue"
                   : "border-transparent text-slate-500 hover:text-slate-700")
               }
