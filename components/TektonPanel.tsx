@@ -1,15 +1,9 @@
 import type { WorkflowTrigger } from "@/lib/workflows";
 import { TektonWorkflowCard } from "@/components/TektonWorkflowCard";
 
-// Razones sociales de Tekton que todavía no tienen webhook de n8n propio. El id ya anticipa
-// el nombre de env var que va a usar (N8N_TEKTON_SAC_WEBHOOK_URL/SECRET) para que "habilitar"
-// sea sacar el objeto de acá y darlo de alta en WORKFLOWS con su descripción real — no hay
-// nada que renombrar.
-const PLACEHOLDER_WORKFLOWS = [{ id: "tekton-sac", label: "Workflow SAC" }] as const;
-
-// No están en lib/workflows.ts a propósito: ese array exige description/confirmationQuestion
-// reales (para que nada llegue al panel sin explicar qué hace) y su estado "no configurado"
-// siempre muestra un mensaje — acá se pidió lo opuesto, sin mensaje, mientras no haya webhook.
+// Ya no quedan razones sociales de Tekton en estado placeholder (INC y SAC están dadas de
+// alta en lib/workflows.ts): cada una se renderiza vía TektonWorkflowCard y su propio
+// `configured` decide si el botón está activo o dice "No configurado".
 // Tema oscuro a propósito (bg-tk-black, texto blanco/cian): coherente con el <header> cuando
 // la pestaña Tekton está activa (AppShell.tsx). Antes era claro (bg-tk-light) y quedaba
 // desalineado del resto de la marca — ver la referencia del sitio real de Tekton.
@@ -33,16 +27,6 @@ export function TektonPanel({
       <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
         {workflows.map(({ workflow, configured }) => (
           <TektonWorkflowCard key={workflow.id} workflow={workflow} configured={configured} />
-        ))}
-        {PLACEHOLDER_WORKFLOWS.map((workflow) => (
-          <button
-            key={workflow.id}
-            type="button"
-            disabled
-            className="rounded-tk-md bg-tk-primary px-4 py-3 text-sm font-semibold text-white opacity-40 cursor-not-allowed"
-          >
-            {workflow.label}
-          </button>
         ))}
       </div>
     </div>
