@@ -62,12 +62,13 @@ export function WorkflowCard({
     }
   }
 
-  // Los cuatro estados comparten el mismo cascarón para que todas las cards midan igual en
-  // el grid: `h-full` + `flex-col`, y la zona de acción empujada al fondo con `mt-auto`.
+  // Los cuatro estados comparten el mismo cascarón (`flex-col`), pero la card NO fuerza
+  // `h-full`: el grid usa `items-start` (ver page.tsx) para que cada card tome la altura de
+  // su propio contenido en vez de estirarse a la de la más alta de su fila.
   return (
     <article
       className={
-        "flex h-full flex-col overflow-hidden rounded-xl border bg-white shadow-sm " +
+        "flex flex-col overflow-hidden rounded-xl border bg-white shadow-sm " +
         (configured
           ? "border-slate-200 transition-shadow hover:shadow-md " +
             (isProduction ? "hover:border-e11-blue-dark" : "hover:border-e11-cyan")

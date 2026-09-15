@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { auth, signOut } from "@/auth";
 import { AppShell } from "@/components/AppShell";
+import { AutomatedWorkflowCard } from "@/components/AutomatedWorkflowCard";
 import { TektonPanel } from "@/components/TektonPanel";
 import { WorkflowCard } from "@/components/WorkflowCard";
 import { ENTITIES, allowedEntitiesFor, type EntityId } from "@/lib/entities";
@@ -118,7 +119,7 @@ export default async function Home({
   // de env var, no valores. La página ya es dinámica (await auth), así que process.env se lee por
   // request.
   const equals11Content = (
-    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+    <div className="grid grid-cols-1 items-start gap-5 sm:grid-cols-2 xl:grid-cols-3">
       {WORKFLOWS.filter((workflow) => workflow.entity === "equals11").map((workflow) => {
         const configured = Boolean(
           process.env[workflow.env.webhookUrl] && process.env[workflow.env.webhookSecret],
@@ -136,22 +137,66 @@ export default async function Home({
   );
 
   const equals11ProductionContent = (
-    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
-      {WORKFLOWS.filter((workflow) => workflow.entity === "equals11-production").map(
-        (workflow) => {
-          const configured = Boolean(
-            process.env[workflow.env.webhookUrl] && process.env[workflow.env.webhookSecret],
-          );
-          return (
-            <WorkflowCard
-              key={workflow.id}
-              workflow={workflow}
-              configured={configured}
-              isProduction={true}
-            />
-          );
-        },
-      )}
+    <div className="space-y-8">
+      <div>
+        <h3 className="text-sm font-semibold uppercase tracking-wide text-white/70">
+          Workflows manuales
+        </h3>
+        <div className="mt-3 grid grid-cols-1 items-start gap-5 sm:grid-cols-2 xl:grid-cols-3">
+          {WORKFLOWS.filter((workflow) => workflow.entity === "equals11-production").map(
+            (workflow) => {
+              const configured = Boolean(
+                process.env[workflow.env.webhookUrl] && process.env[workflow.env.webhookSecret],
+              );
+              return (
+                <WorkflowCard
+                  key={workflow.id}
+                  workflow={workflow}
+                  configured={configured}
+                  isProduction={true}
+                />
+              );
+            },
+          )}
+        </div>
+      </div>
+
+      {/* No son workflows de trigger manual — corren solos al detectar un archivo en Drive,
+          así que no usan WorkflowCard (no hay botón que activar): recuadros colapsables
+          aparte, separados de la sección de arriba. */}
+      <div>
+        <h3 className="text-sm font-semibold uppercase tracking-wide text-white/70">
+          Workflows automáticos
+        </h3>
+        <div className="mt-3 grid grid-cols-1 items-start gap-5 sm:grid-cols-2">
+          <AutomatedWorkflowCard
+            label="Cashflow Automation"
+            description="Actualiza automáticamente la base de Cashflow al detectar el extracto del mes en Drive."
+            isProduction={true}
+            steps={[
+              "Entra a la cuenta checking de BofA desde la web, usando las credenciales de Equals11.",
+              "Descarga el extracto (statement) en formato .csv, con las transacciones del mes que se va a trabajar.",
+              "Coloca el archivo .csv dentro de Drive, en la carpeta Cashflow → BOFA CSV Inputs → carpeta del año correspondiente.",
+              "El workflow corre automáticamente al detectar el archivo — no requiere activación manual.",
+              "Resultado: se crea automáticamente un documento nuevo con la base de datos actualizada, dentro de Cashflow → Cashflow Sheets → carpeta del año correspondiente.",
+            ]}
+          />
+          <AutomatedWorkflowCard
+            label="SG&A Update"
+            description="Registra automáticamente los gastos de SG&A del mes en el spreadsheet maestro al detectar los .csv en Drive."
+            isProduction={true}
+            warning="⚠️ Antes de descargar los archivos, confirma con Marjori que ya terminó de registrar los gastos del mes en QuickBooks."
+            steps={[
+              "En QuickBooks, ve a la pestaña P&L y descarga el .csv de Expenses del mes.",
+              "Descarga también el .csv de COGS (tools) del mismo mes.",
+              "Coloca el .csv de Expenses en Drive, en la carpeta P&Ls → SG&A CSV → SGA-Expenses.",
+              "Coloca el .csv de COGS/Tools en Drive, en la carpeta P&Ls → SG&A CSV → SGA-COGS-Tools.",
+              "El workflow corre automáticamente al detectar los archivos — no requiere activación manual.",
+              "Resultado: los gastos quedan registrados en la hoja SG&A del spreadsheet maestro Invoices/Config, con banderas de color: 🟢 recurrente, 🟡 mismo proveedor con monto distinto, 🔴 proveedor nuevo. Los gastos se registran en negativo, excepto Credit Card Credit y Deposit, que mantienen su signo original.",
+            ]}
+          />
+        </div>
+      </div>
     </div>
   );
 
