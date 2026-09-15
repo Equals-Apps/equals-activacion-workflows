@@ -87,8 +87,12 @@ export const WORKFLOWS: readonly WorkflowTrigger[] = [
     entity: "equals11",
     label: "COGS Hours Update",
     description:
-      "Cruza horas de Timekeeping por dev contra la hoja COGS del P&L vigente y actualiza los totales.",
-    confirmationQuestion: GENERIC_CONFIRMATION,
+      "Carga las horas del mes de cada dev en el bloque de horas de la hoja COGS del P&L " +
+      "vigente, tomándolas de su hoja de Timekeeping.",
+    confirmationQuestion:
+      "¿Confirmaste que las hojas de los devs tienen el ID correcto y la tarifa actualizada " +
+      "en Config de Invoices Details, y que en Timekeeping las empresas están en la columna E " +
+      "y las horas en la columna G?",
     successMessage: GENERIC_SUCCESS,
     env: {
       webhookUrl: "N8N_COGS_HOURS_WEBHOOK_URL",
@@ -153,7 +157,7 @@ export const WORKFLOWS: readonly WorkflowTrigger[] = [
     },
   },
   // --- Equals11 — Producción ---
-  // Mismos 6 workflows que ya corren en sandbox, mismo description/confirmationQuestion/
+  // Mismos 7 workflows que ya corren en sandbox, mismo description/confirmationQuestion/
   // successMessage (misma lógica de negocio, solo cambia que ahora pegan a datos reales) —
   // pero con su propio par de env vars (N8N_..._PRODUCTION_*) y su propia whitelist
   // (EQUALS11_PRODUCTION_ALLOWED_EMAILS). Commissions Update queda afuera de este batch a
@@ -186,6 +190,24 @@ export const WORKFLOWS: readonly WorkflowTrigger[] = [
     env: {
       webhookUrl: "N8N_REVENUE_NEW_INVOICES_PRODUCTION_WEBHOOK_URL",
       webhookSecret: "N8N_REVENUE_NEW_INVOICES_PRODUCTION_WEBHOOK_SECRET",
+      allowedEmails: "EQUALS11_PRODUCTION_ALLOWED_EMAILS",
+    },
+  },
+  {
+    id: "cogs-hours-update-production",
+    entity: "equals11-production",
+    label: "COGS Hours Update",
+    description:
+      "Carga las horas del mes de cada dev en el bloque de horas de la hoja COGS del P&L " +
+      "vigente, tomándolas de su hoja de Timekeeping.",
+    confirmationQuestion:
+      "¿Confirmaste que las hojas de los devs tienen el ID correcto y la tarifa actualizada " +
+      "en Config de Invoices Details, y que en Timekeeping las empresas están en la columna E " +
+      "y las horas en la columna G?",
+    successMessage: GENERIC_SUCCESS,
+    env: {
+      webhookUrl: "N8N_COGS_HOURS_PRODUCTION_WEBHOOK_URL",
+      webhookSecret: "N8N_COGS_HOURS_PRODUCTION_WEBHOOK_SECRET",
       allowedEmails: "EQUALS11_PRODUCTION_ALLOWED_EMAILS",
     },
   },
