@@ -2,7 +2,7 @@
 
 ## Qué es esto
 
-App web interna (Next.js) que deja a personas específicas disparar manualmente el workflow de n8n "New P&L creation" de Equals11, sin entrar a la UI de n8n. Nace de un pedido más grande: Boring Holding quiere un panel donde gente autorizada pueda activar distintos workflows de n8n (P&L, monthly report, y a futuro cosas de Tekton), con un paso de confirmación antes de disparar acciones reales.
+App web interna (Next.js) que deja a personas específicas disparar manualmente el workflow de n8n "New P&L creation" de Equals11, sin entrar a la UI de n8n. Nace de un pedido más grande: Boring Holding quiere un panel donde gente autorizada pueda activar distintos workflows de n8n de Equals11 (P&L, monthly report, y más), con un paso de confirmación antes de disparar acciones reales.
 
 - Repo: `github.com/lucatolentino/workflows-triggers`
 - Producción: `https://workflows-triggers.vercel.app`
@@ -24,7 +24,7 @@ No es solo que el código compile — se hizo el disparo real único y deliberad
 - **Respuesta del webhook es inmediata** (arranca el workflow, no espera que termine) — la UI dice "Solicitud enviada, vas a recibir la confirmación en Slack", nunca "P&L creado con éxito", porque la app no puede saber si terminó bien.
 - **CSP usa `'unsafe-inline'`** en `script-src`, no nonce — decisión documentada en ADR-0002: esta app no tiene ninguna superficie real de inyección (sin inputs de usuario reflejados, acceso whitelisteado), así que el nonce (que exige `middleware.ts`) no se justifica.
 - **Sin base de datos en ningún lado** — toda la config vive en env vars.
-- **`lib/workflows.ts` es una lista, por-entidad desde el día uno** (cada entrada trae su propia referencia de whitelist), aunque hoy solo tenga a Equals11 — pensado para que sumar Tekton sea agregar un objeto, no rediseñar el tipo.
+- **`lib/workflows.ts` es una lista, por-entidad desde el día uno** (cada entrada trae su propia referencia de whitelist), aunque hoy solo tenga a Equals11 — pensado para que sumar una entidad nueva sea agregar un objeto, no rediseñar el tipo.
 - **Sin `middleware.ts`** — una sola página y una sola API route no justifican la indirección.
 - **Vercel: un solo ambiente (Production/main)** — no hay separación real sandbox/producción del lado de n8n (el workflow siempre escribe sobre Sheets/Drive/Slack reales, sin importar qué ambiente de Vercel lo llame), así que fingir un Preview=sandbox sería documentar una separación que no existe.
 - **Logging de auditoría**: solo disparos exitosos (no rechazos), con email en texto plano (los logs de Vercel no son públicos, y enmascarar el email le quita el único propósito del log).
@@ -54,8 +54,7 @@ No es solo que el código compile — se hizo el disparo real único y deliberad
 
 Alonso pidió ver más progreso en la app, pero **todavía no está claro qué significa eso concretamente** — es la primera pregunta a resolver en la conversación nueva, con las mismas preguntas aclaratorias que se usaron para armar v1:
 
-- **Opción A — más workflows de Equals11** (ej. Monthly Report Creator): cambio menor, es agregar una fila a `lib/workflows.ts`.
-- **Opción B — sumar Tekton como segunda entidad**: cambio mayor, obliga a repensar whitelist y webhook por entidad (ya anticipado por ADR-0003), no es solo agregar una fila.
+- **Más workflows de Equals11** (ej. Monthly Report Creator): cambio menor, es agregar una fila a `lib/workflows.ts`.
 
 Otros pendientes de menor prioridad:
 - Pulido visual opcional (hoy no hay estilos, por decisión deliberada).

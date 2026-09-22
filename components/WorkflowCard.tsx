@@ -75,7 +75,7 @@ export function WorkflowCard({
           : "border-slate-200")
       }
     >
-      {/* Barra de acento: celeste en sandbox/Tekton-N/A, azul (e11-blue-dark) en Producción.
+      {/* Barra de acento: celeste en sandbox/N/A, azul (e11-blue-dark) en Producción.
           Puramente decorativa — no comunica nada que dependa solo de percibirla, el badge de
           al lado del título es la señal redundante. Ver nota de contraste en globals.css. */}
       <div

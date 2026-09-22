@@ -13,39 +13,11 @@
   --color-e11-cyan: #00bff2;
 }
 
-/* Identidad Tekton. Igual que e11-cyan arriba, --color-tk-secondary (1.83:1 sobre blanco)
-   y --color-tk-yellow (2.09:1) son DECORATIVOS por contraste — barras de acento y detalles
-   puntuales, nunca texto. --color-tk-tertiary y --color-tk-purple sí pasan AA sobre blanco
-   (5.05:1 y 6.02:1) pero se usan igual solo como acento: la superficie de marca es
-   --color-tk-primary (11.14:1 en blanco-sobre-primario) + --color-tk-light de fondo. */
-@theme {
-  --color-tk-primary: #00424d;
-  --color-tk-secondary: #00d7c2;
-  --color-tk-tertiary: #0061ff;
-  --color-tk-purple: #8800ff;
-  --color-tk-yellow: #ff9d00;
-  --color-tk-black: #000d0f;
-  --color-tk-dark: #6e6e6e;
-  --color-tk-medium: #a4a4a4;
-  --color-tk-light: #f2f2f2;
-
-  --radius-tk-sm: 4px;
-  --radius-tk-md: 8px;
-  --radius-tk-lg: 16px;
-  --radius-tk-xl: 24px;
-  --radius-tk-2xl: 40px;
-  --radius-tk-full: 9999px;
-}
-
 /* `inline` es obligatorio cuando el valor es un var() de otra variable: inlinea el valor
    en la utility en vez de emitir una referencia que no resolvería en el scope correcto.
-   --font-geist-sans / --font-golos-text / --font-playfair-display las define next/font vía
-   las clases en <html> (app/layout.tsx). Golos Text y Playfair quedan namespaced (font-tk-*)
-   a propósito: son de Tekton, no reemplazan --font-sans del resto de la app. */
+   --font-geist-sans la define next/font vía la clase en <html> (app/layout.tsx). */
 @theme inline {
   --font-sans: var(--font-geist-sans);
-  --font-tk-sans: var(--font-golos-text);
-  --font-tk-display: var(--font-playfair-display);
 }
 
 /* El panel es light-only por decisión de marca (fondo blanco). Sin esto, un usuario con

@@ -15,13 +15,10 @@ _Avoid_: Disparador, gatillo, activador
 ### Organización
 
 **Boring Holding**:
-La holding matriz. Dueña de las distintas entidades/proyectos operativos que corren bajo el panel (Equals11, Tekton, y futuras).
+La holding matriz. Dueña de las distintas entidades/proyectos operativos, entre ellas Equals11.
 
 **Equals11**:
-Entidad operativa bajo Boring Holding. Único scope de v1 de este panel — todos los workflows de esta versión son de Equals11.
-
-**Tekton**:
-Otra entidad operativa bajo Boring Holding. Sumada al panel el 2026-09-03 como su propia pestaña — hoy con dos workflows placeholder ("Workflow INC" y "Workflow SAC", uno por razón social) todavía sin webhook de n8n configurado.
+Entidad operativa bajo Boring Holding. Único scope de este panel — todos los workflows son de Equals11.
 
 ### Workflows
 

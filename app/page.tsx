@@ -3,7 +3,6 @@ import Link from "next/link";
 import { auth, signOut } from "@/auth";
 import { AppShell } from "@/components/AppShell";
 import { AutomatedWorkflowCard } from "@/components/AutomatedWorkflowCard";
-import { TektonPanel } from "@/components/TektonPanel";
 import { WorkflowCard } from "@/components/WorkflowCard";
 import { ENTITIES, allowedEntitiesFor, type EntityId } from "@/lib/entities";
 import { WORKFLOWS } from "@/lib/workflows";
@@ -28,48 +27,26 @@ export default async function Home({
 
   if (!session) {
     return (
-      <main className="grid min-h-screen grid-cols-1 md:grid-cols-2">
-        {/* Mitad Equals11 — branding y flujo tal cual estaban antes de dividir la pantalla. */}
-        <div className="flex items-center justify-center px-4 py-16">
-          <div className="w-full max-w-sm rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm">
-            <Image
-              src={logoEquals11}
-              alt="Equals11"
-              priority
-              className="mx-auto h-10 w-auto"
-            />
-            <h1 className="mt-6 text-lg font-semibold text-e11-blue">
-              Panel de Triggers
-            </h1>
-            <p className="mt-2 text-sm text-slate-600">
-              Acceso restringido al equipo de Equals11.
-            </p>
-            <Link
-              href={`/api/auth/signin?callbackUrl=${encodeURIComponent("/?tab=equals11")}`}
-              className="mt-6 block w-full rounded-lg bg-e11-blue px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-e11-blue-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-e11-blue"
-            >
-              Iniciar sesión con Google
-            </Link>
-          </div>
-        </div>
-
-        {/* Mitad Tekton — mismo flujo de Google, solo cambia el hint de pestaña inicial (ver
-            allowedEntitiesFor más abajo: si el email no tiene acceso a Tekton, este botón
-            igual termina mostrando Equals11 o "sin acceso", nunca una pantalla vacía). */}
-        <div className="flex items-center justify-center bg-gradient-to-br from-tk-black to-tk-primary px-4 py-16">
-          <div className="w-full max-w-sm text-center">
-            <div className="mx-auto h-1 w-12 rounded-tk-full bg-tk-secondary" />
-            <h1 className="mt-6 font-tk-display text-3xl italic text-white">Tekton</h1>
-            <p className="mt-2 text-sm text-tk-secondary/80">
-              Acceso restringido al equipo de Tekton.
-            </p>
-            <Link
-              href={`/api/auth/signin?callbackUrl=${encodeURIComponent("/?tab=tekton")}`}
-              className="mt-6 block w-full rounded-lg bg-tk-secondary px-4 py-2.5 text-sm font-semibold text-tk-primary transition hover:brightness-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-tk-secondary"
-            >
-              Iniciar sesión con Google
-            </Link>
-          </div>
+      <main className="flex min-h-screen items-center justify-center px-4 py-16">
+        <div className="w-full max-w-sm rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm">
+          <Image
+            src={logoEquals11}
+            alt="Equals11"
+            priority
+            className="mx-auto h-10 w-auto"
+          />
+          <h1 className="mt-6 text-lg font-semibold text-e11-blue">
+            Panel de Triggers
+          </h1>
+          <p className="mt-2 text-sm text-slate-600">
+            Acceso restringido al equipo de Equals11.
+          </p>
+          <Link
+            href={`/api/auth/signin?callbackUrl=${encodeURIComponent("/?tab=equals11")}`}
+            className="mt-6 block w-full rounded-lg bg-e11-blue px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-e11-blue-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-e11-blue"
+          >
+            Iniciar sesión con Google
+          </Link>
         </div>
       </main>
     );
@@ -85,7 +62,7 @@ export default async function Home({
   // autorizó. Si el email no tiene acceso a la entidad que hintea, AppShell cae sola a la
   // primera pestaña permitida — no hay ninguna ruta donde este valor amplíe acceso.
   const { tab } = await searchParams;
-  const tabHint: EntityId | undefined = tab === "equals11" || tab === "tekton" ? tab : undefined;
+  const tabHint: EntityId | undefined = tab === "equals11" ? tab : undefined;
 
   // Solo alcanzable si a alguien se le sacó de TODAS las whitelists después de que su sesión
   // JWT ya se emitió (revocación sin logout forzado — mismo caso que ya maneja /api/trigger).
@@ -200,26 +177,10 @@ export default async function Home({
     </div>
   );
 
-  const tektonWorkflows = WORKFLOWS.filter((workflow) => workflow.entity === "tekton").map(
-    (workflow) => ({
-      workflow,
-      configured: Boolean(
-        process.env[workflow.env.webhookUrl] && process.env[workflow.env.webhookSecret],
-      ),
-    }),
-  );
-
   // Orden fijo (el de ENTITIES), no el de allowedEntities: así la posición de cada pestaña no
   // depende del orden en que matchearon las whitelists.
   const tabs = ENTITIES.filter((entity) => allowedEntities.includes(entity.id)).map((entity) => {
-    let content: React.ReactNode;
-    if (entity.id === "equals11") {
-      content = equals11Content;
-    } else if (entity.id === "equals11-production") {
-      content = equals11ProductionContent;
-    } else {
-      content = <TektonPanel workflows={tektonWorkflows} />;
-    }
+    const content = entity.id === "equals11" ? equals11Content : equals11ProductionContent;
     return { id: entity.id, label: entity.label, content };
   });
 

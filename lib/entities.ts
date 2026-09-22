@@ -1,14 +1,12 @@
 import { isEmailAllowed } from "@/lib/allowed-emails";
 
-export type EntityId = "equals11" | "equals11-production" | "tekton";
+export type EntityId = "equals11" | "equals11-production";
 
 export interface Entity {
   id: EntityId;
   label: string;
   // Nombre de la env var de whitelist para esta entidad — misma que usan sus workflows
-  // en WORKFLOWS (lib/workflows.ts). Fuente única: si una entidad todavía no tiene ningún
-  // workflow (ej. Tekton hoy, con INC/SAC deshabilitados), esta lista sigue siendo la que
-  // decide si la persona ve la pestaña.
+  // en WORKFLOWS (lib/workflows.ts).
   allowedEmailsEnv: string;
 }
 
@@ -19,7 +17,6 @@ export const ENTITIES: readonly Entity[] = [
     label: "Equals11 — Producción",
     allowedEmailsEnv: "EQUALS11_PRODUCTION_ALLOWED_EMAILS",
   },
-  { id: "tekton", label: "Tekton", allowedEmailsEnv: "TEKTON_ALLOWED_EMAILS" },
 ];
 
 // Un email puede estar en más de una whitelist (misma persona, un correo por empresa):

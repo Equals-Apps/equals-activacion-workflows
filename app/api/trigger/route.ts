@@ -62,10 +62,10 @@ export async function POST(req: Request) {
   }
 
   // 5. Whitelist, segunda pasada — específica del workflow resuelto. El paso 3 solo prueba
-  // pertenencia a ALGUNA entidad; alguien de Tekton pasa ese filtro y, sin este segundo
-  // chequeo, podría pedir un workflowId de Equals11 (u otra entidad) directo por POST y
-  // dispararlo. Recién acá se sabe qué workflow es, así que recién acá se puede confirmar
-  // que el email está específicamente en SU whitelist.
+  // pertenencia a ALGUNA entidad; alguien con acceso solo a Sandbox (o solo a Producción)
+  // pasa ese filtro y, sin este segundo chequeo, podría pedir por POST directo un workflowId
+  // de la otra entidad y dispararlo. Recién acá se sabe qué workflow es, así que recién acá
+  // se puede confirmar que el email está específicamente en SU whitelist.
   if (!isEmailAllowed(email, workflow.env.allowedEmails)) {
     return NextResponse.json({ error: "forbidden" }, { status: 403 });
   }

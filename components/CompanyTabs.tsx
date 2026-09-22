@@ -42,11 +42,9 @@ export function CompanyTabs({
               className={
                 "border-b-2 px-3 py-2 text-sm font-medium transition-colors " +
                 (selected
-                  ? tab.id === "tekton"
-                    ? "border-tk-primary text-tk-primary"
-                    : tab.id === "equals11-production"
-                      ? "rounded-full border-transparent bg-e11-blue-dark text-white"
-                      : "border-e11-blue text-e11-blue"
+                  ? tab.id === "equals11-production"
+                    ? "rounded-full border-transparent bg-e11-blue-dark text-white"
+                    : "border-e11-blue text-e11-blue"
                   : "border-transparent text-slate-500 hover:text-slate-700")
               }
             >
@@ -57,7 +55,7 @@ export function CompanyTabs({
       </div>
 
       {/* Todas quedan montadas (nunca desmontadas) para no perder el estado de cada
-          pestaña — ej. un checkbox tildado en Equals11 sigue tildado al volver de Tekton.
+          pestaña — ej. un checkbox tildado en Sandbox sigue tildado al volver de Producción.
           Ocultar con `hidden` alcanza: no hay nada más caro que reflow acá adentro. */}
       {tabs.map((tab) => (
         <div key={tab.id} role="tabpanel" hidden={tab.id !== activeId}>
